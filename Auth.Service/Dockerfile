@@ -19,7 +19,7 @@
 # is to define a reusable base image that can be referenced later. This approach helps to keep the Dockerfile organized 
 # and makes it clear which image is being used as the runtime environment for the final stage.
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 as base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 
 # dotnet restore command requires the .NET SDK, which is why we are using the mcr.microsoft.com/dotnet/sdk:9.0 image in this layer. The SDK image
@@ -77,8 +77,10 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
-COPY ["auth-microservice/Auth.Service/Auth.Service.csproj", "Auth.Service/"] # "/" at the end of dest file means Docker will copy the `Auth.Service.csproj` file into the `Auth.Service` directory. If the `Auth.Service` directory does not exist, Docker will create it.
-COPY ["local-nuget-packages/", "/local-nuget-packages/"] # "/" in front means absolute path definition for tis is up.
+# "/" at the end of dest file means Docker will copy the `Auth.Service.csproj` file into the `Auth.Service` directory. If the `Auth.Service` directory does not exist, Docker will create it.
+COPY ["auth-microservice/Auth.Service/Auth.Service.csproj", "Auth.Service/"]
+# "/" in front means absolute path definition for tis is up.
+COPY ["local-nuget-packages/", "/local-nuget-packages/"] 
 COPY ["auth-microservice/nuget.config", "./"]
 RUN dotnet restore "Auth.Service/Auth.Service.csproj"
 
@@ -89,7 +91,8 @@ RUN dotnet restore "Auth.Service/Auth.Service.csproj"
 # For example changes in file "appsettings.json" won't run dotnet restore.
 
 COPY ["auth-microservice/Auth.Service/", "Auth.Service/"]
-WORKDIR "Auth.Service" # Sets the working directory to Auth.Service, which means that subsequent commands will be executed relative to this directory. This is necessary because the Auth.Service.csproj file is located in the Auth.Service directory.
+# Sets the working directory to Auth.Service, which means that subsequent commands will be executed relative to this directory. This is necessary because the Auth.Service.csproj file is located in the Auth.Service directory.
+WORKDIR "Auth.Service" 
 RUN dotnet build "Auth.Service.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage continues from the "build" stage and uses the "dotnet publish" command to compile the application and prepare it for deployment.
