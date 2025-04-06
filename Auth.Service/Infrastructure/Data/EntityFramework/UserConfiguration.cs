@@ -16,12 +16,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Password)
             .IsRequired();
 
+        builder.Property(u => u.Role)
+            .IsRequired();
+
         builder.HasData(
             new User
             {
                 Id = Guid.NewGuid(),
                 Username = "Gaga",
-                Password = "Gdeme19"
+                Password = "Gdeme19",
+                Role = "Administrator"
             }
            );
     }
