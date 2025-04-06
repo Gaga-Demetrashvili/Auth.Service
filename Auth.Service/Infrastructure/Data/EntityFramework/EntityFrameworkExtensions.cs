@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Auth.Service.Infrastructure.Data.EntityFramework;
 
@@ -8,14 +9,19 @@ public static class EntityFrameworkExtensions
         IConfigurationManager configuration)
     {
         services.AddDbContext<AuthContext>(options =>
+        {
             options.UseSqlServer(configuration.GetConnectionString("Default"),
-            sqlServerOptionsAction: sqlOptions =>
-            {
-                sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(40),
-                    errorNumbersToAdd: [0]);
-            }));
+                sqlServerOptionsAction: sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(40),
+                        errorNumbersToAdd: [0]);
+                });
+
+            options.ConfigureWarnings(warnings =>
+            warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+        });
 
         services.AddScoped<IAuthStore, AuthContext>();
     }
