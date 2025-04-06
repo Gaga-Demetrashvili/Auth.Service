@@ -8,7 +8,7 @@ public static class TokenStartupExtensions
         IConfigurationManager configuration)
     {
         var authOptions = new AuthOptions();
-        configuration.GetSection(authOptions.AuthMicroserviceBaseAddress).Bind(authOptions);
+        configuration.GetSection(AuthOptions.AuthenticationSectionName).Bind(authOptions);
         services.AddSingleton(authOptions);
 
         services.AddScoped<ITokenService, JwtTokenService>();
